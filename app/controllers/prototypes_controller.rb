@@ -1,9 +1,11 @@
 class PrototypesController < ApplicationController
   before_action :set_prototype, except: [:index, :new, :create]
-  before_action :authenticate_user! , only: [:edit, :update, :destroy]
-  before_action :move_to_index ,only: [:update, :destroy]
-
+  before_action :move_to_index ,only: [:edit, :update, :destroy]
+  before_action :authenticate_user!, except: [:index, :show]
  
+ 
+
+
   def index
     @prototypes = Prototype.includes(:user)
   end
@@ -64,19 +66,15 @@ class PrototypesController < ApplicationController
     params.require(:prototype).permit(:title, :catch_copy, :concept, :image).merge(user_id: current_user.id)
   end
 
-  def move_to_index
-    # 未ログインユーザー
-    unless user_signed_in?
-      redirect_to root_path, alert: "ログインが必要です。" and return
-    end
   
-    # 投稿者以外
+    
+  def move_to_index
+    # current_user が存在し、かつそのユーザーが投稿者でなければリダイレクト
     unless current_user == @prototype.user
-      redirect_to root_path, alert: "不法なため入れません" and return
+      redirect_to root_path 
     end
   end
   
-    
   
 
 end
